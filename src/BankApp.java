@@ -27,7 +27,7 @@ public class BankApp {
 		LinkedList<User> userList = new LinkedList<>();
 		boolean idExists = true;
 		
-		userList.add(new User("Kevin", "Test", 50.05, 10));
+		userList.add(new User("Test", "Test", 50.05, 10));
 		userList.get(0).setId(1);
 		
 		System.out.println("Hello! Welcome to the Bank. What can we do for you today?\n");
@@ -44,16 +44,43 @@ public class BankApp {
 							System.out.println("\nHere is your current balance:");
 							System.out.println("Checkings: " + currentUser.getCheckingsAccount());
 							System.out.println("Savings: " + currentUser.getSavingsAccount());
-							int depositOrWithdraw = Validator.getInt(scan, "\nAre you depositing or withdrawing money?", 1, 2);
+							int depositOrWithdraw = Validator.getInt(scan, "\nAre you depositing or withdrawing money? (1 for depositing, 2 for withdrawing):", 1, 2);
 								if (depositOrWithdraw == 1) {
 									double depositAmount = Validator.getDouble(scan, "\nHow much are you depositing?");
-									int checkingsOrSavings = Validator.getInt(scan, "\nWhich account are you depositing into?\n1. Checkings\n2. Savings\n3. Nevermind, I am not depositing or withdrawing money.", 1, 3);
+									int checkingsOrSavings = Validator.getInt(scan, "\nWhich account are you depositing into?\n1. Checkings\n2. Savings\n3. Nevermind, I am not depositing any money.", 1, 3);
 										if (checkingsOrSavings == 1) {
-											currentUser.setSavingsAccount(currentUser.getCheckingsAccount() + depositAmount);
-											System.out.println(depositAmount + " has been deposited into your checkings! Your current balance is " + currentUser.getCheckingsAccount());
+											currentUser.setCheckingsAccount((currentUser.getCheckingsAccount() + depositAmount));
+											System.out.println("\n" + depositAmount + " has been deposited into your checkings! Your current checkings balance is " + currentUser.getCheckingsAccount());
+										} else if (checkingsOrSavings == 2) {
+											currentUser.setSavingsAccount(currentUser.getSavingsAccount() + depositAmount);
+											System.out.println("\n" + depositAmount + " has been deposited into your savings! Your current savings balance is " + currentUser.getSavingsAccount());
+										} else {
+											break;
+										}
+								} else if (depositOrWithdraw == 2) {
+									double withdrawAmount = Validator.getDouble(scan, "\nHow much are you withdrawing?");
+									int checkingsOrSavings = Validator.getInt(scan, "\nWhich account are you withdrawing from?\n1. Checkings\n2. Savings\n3. Nevermind, I am not withdrawing any money.", 1, 3);
+										if(checkingsOrSavings == 1) {
+											if (withdrawAmount > currentUser.getCheckingsAccount()) {
+												System.out.println("You cannot withdraw more than your current balance.");
+											} else {
+												currentUser.setCheckingsAccount(currentUser.getCheckingsAccount() - withdrawAmount);
+												System.out.println("\nHere's " + withdrawAmount + " from your checkings account. Your current checkings balance is " + currentUser.getCheckingsAccount());
+											}
+										} else if (checkingsOrSavings == 2) {
+											if (withdrawAmount > currentUser.getSavingsAccount()) {
+												System.out.println("You cannot withdraw more than your current balance.");
+											} else {
+												currentUser.setSavingsAccount(currentUser.getSavingsAccount() - withdrawAmount);
+												System.out.println("\nHere's " + withdrawAmount + " from your checkings account. Your current savings balance is " + currentUser.getSavingsAccount());
+											}											
 										}
 								}
+						} else {
+							System.out.println("The security code does not match.");
 						}
+					} else {
+						idExists = false;
 					}
 				}
 		}
