@@ -26,6 +26,7 @@ public class BankApp {
 		
 		LinkedList<User> userList = new LinkedList<>();
 		boolean idExists = true;
+		int userCount = 1;
 		
 		userList.add(new User("Test", "Test", 50.05, 10));
 		userList.get(0).setId(1);
@@ -83,6 +84,17 @@ public class BankApp {
 						idExists = false;
 					}
 				}
+		} else if (userInput == 3) {
+			String newUserName = Validator.getString(scan, "Excellent. What is your name?");
+			String newUserCode = Validator.getString(scan, "What will be your security code? You will be asked for this everytime.");
+			double newUserCheckings = Validator.getDouble(scan, "How much money are you depositing into your checkings account?");
+			double newUserSavings = Validator.getDouble(scan, "Now how much money are you depositing into your savings account?");
+			
+			User newUser = new User(newUserName, newUserCode, newUserCheckings, newUserSavings);
+			newUser.setId(userCount);
+			userCount++;
+			
+			System.out.println("Thank you for joining!");
 		}
 		
 		
