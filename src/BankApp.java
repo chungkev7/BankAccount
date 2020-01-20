@@ -12,6 +12,7 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Scanner;
 
@@ -25,24 +26,34 @@ public class BankApp {
 //		createOurFile();
 		
 		LinkedList<User> userList = new LinkedList<>();
-		boolean idExists = true;
-		int userCount = 1;
 		
-		userList.add(new User("Test", "Test", 50.05, 10));
-		userList.get(0).setId(1);
+		readFromFile(userList);
 		
-		System.out.println("Hello! Welcome to the Bank. What can we do for you today?\n");
+		int userCount = userList.size();
 		
-		int userInput = Validator.getInt(scan, "1. Deposit/Withdraw money\n2. Transfer money\n3. Sign up for an account\n4. That is all for today.", 1, 4);
+//		System.out.println(userList);
+//		System.out.println(userCount);
+		
+		boolean idExists = false;
+		
+		System.out.println("Hello! Welcome to the Bank.\n");
+		
+		int userInput = 0;
+		
+		while (userInput != 4) {
+		
+		System.out.println("What can we do for you today?");
+		userInput = Validator.getInt(scan, "1. Deposit/Withdraw money\n2. Transfer money\n3. Sign up for an account\n4. That is all for today\n", 1, 4);
 		
 		if (userInput == 1) {
 			int userId = Validator.getInt(scan, "\nWhat is your ID?");	
 				for (User user : userList) {
 					if(user.getId() == userId) {
 						User currentUser = user;
+						idExists = true;
 						String securityCode = Validator.getString(scan, "\nFor security purposes, what is your security code?");
-						if (securityCode.equalsIgnoreCase(currentUser.getSecurityCode())) {
-							System.out.println("\nHere is your current balance:");
+						if (securityCode.equals(currentUser.getSecurityCode())) {
+							System.out.println("\nHello " + currentUser.getName() + "!. Here is your current balance:");
 							System.out.println("Checkings: " + currentUser.getCheckingsAccount());
 							System.out.println("Savings: " + currentUser.getSavingsAccount());
 							int depositOrWithdraw = Validator.getInt(scan, "\nAre you depositing or withdrawing money? (1 for depositing, 2 for withdrawing):", 1, 2);
@@ -51,10 +62,12 @@ public class BankApp {
 									int checkingsOrSavings = Validator.getInt(scan, "\nWhich account are you depositing into?\n1. Checkings\n2. Savings\n3. Nevermind, I am not depositing any money.", 1, 3);
 										if (checkingsOrSavings == 1) {
 											currentUser.setCheckingsAccount((currentUser.getCheckingsAccount() + depositAmount));
-											System.out.println("\n" + depositAmount + " has been deposited into your checkings! Your current checkings balance is " + currentUser.getCheckingsAccount());
+											System.out.println("\n" + depositAmount + " has been deposited into your checkings! Your current checkings balance is " + currentUser.getCheckingsAccount() + "\n");
+											break;
 										} else if (checkingsOrSavings == 2) {
 											currentUser.setSavingsAccount(currentUser.getSavingsAccount() + depositAmount);
-											System.out.println("\n" + depositAmount + " has been deposited into your savings! Your current savings balance is " + currentUser.getSavingsAccount());
+											System.out.println("\n" + depositAmount + " has been deposited into your savings! Your current savings balance is " + currentUser.getSavingsAccount() + "\n");
+											break;
 										} else {
 											break;
 										}
@@ -64,44 +77,59 @@ public class BankApp {
 										if(checkingsOrSavings == 1) {
 											if (withdrawAmount > currentUser.getCheckingsAccount()) {
 												System.out.println("You cannot withdraw more than your current balance.");
+												break;
 											} else {
 												currentUser.setCheckingsAccount(currentUser.getCheckingsAccount() - withdrawAmount);
-												System.out.println("\nHere's " + withdrawAmount + " from your checkings account. Your current checkings balance is " + currentUser.getCheckingsAccount());
+												System.out.println("\nHere's " + withdrawAmount + " from your checkings account. Your current checkings balance is " + currentUser.getCheckingsAccount() + "\n");
+												break;
 											}
 										} else if (checkingsOrSavings == 2) {
 											if (withdrawAmount > currentUser.getSavingsAccount()) {
 												System.out.println("You cannot withdraw more than your current balance.");
+												break;
 											} else {
 												currentUser.setSavingsAccount(currentUser.getSavingsAccount() - withdrawAmount);
-												System.out.println("\nHere's " + withdrawAmount + " from your checkings account. Your current savings balance is " + currentUser.getSavingsAccount());
+												System.out.println("\nHere's " + withdrawAmount + " from your checkings account. Your current savings balance is " + currentUser.getSavingsAccount() + "\n");
+												break;
 											}											
+										} else {
+											break;
 										}
 								}
 						} else {
-							System.out.println("The security code does not match.");
+							System.out.println("The security code does not match.\n");
+							break;
 						}
 					} else {
 						idExists = false;
 					}
 				}
+				
+				if(idExists == false) {
+					System.out.println("I'm sorry, the Id does not exist in our system. You will have to register for an account.\n");
+				}
+				
 		} else if (userInput == 3) {
 			String newUserName = Validator.getString(scan, "Excellent. What is your name?");
 			String newUserCode = Validator.getString(scan, "What will be your security code? You will be asked for this everytime.");
 			double newUserCheckings = Validator.getDouble(scan, "How much money are you depositing into your checkings account?");
 			double newUserSavings = Validator.getDouble(scan, "Now how much money are you depositing into your savings account?");
 			
-			User newUser = new User(newUserName, newUserCode, newUserCheckings, newUserSavings);
-			newUser.setId(userCount);
-			userCount++;
+			userList.add(new User(userCount + 1, newUserName, newUserCode, newUserCheckings, newUserSavings));
 			
 			System.out.println("Thank you for joining!");
+		} else {
+			userInput = 4;
 		}
 		
+		}
+		
+		writeToFile(userList);
 		
 		scan.close();
 	}
 	
-	public static void readFromFile() {
+	public static LinkedList<User> readFromFile(LinkedList<User> userList) {
 
 		String fileName = "bankaccount.txt";
 		Path path = Paths.get("src/resources", fileName);
@@ -113,20 +141,25 @@ public class BankApp {
 
 			String line = br.readLine();
 			while (line != null) {
-				System.out.println(line);
+//				System.out.println(line);
+				String[] userLines = line.split(",");
+				User user = new User(Integer.parseInt(userLines[0]), userLines[1], userLines[2], Double.parseDouble(userLines[3]), Double.parseDouble(userLines[4]));
+				userList.add(user);
 				line = br.readLine();
 			}
 
 			br.close();
+			
 		} catch (FileNotFoundException e) {
 			System.out.println("Something went wrong with the file");
 		} catch (IOException e) {
 			System.out.println("Something went wrong when we tried to read from the file");
 		}
 
+		return userList;
 	}
 
-	public static void writeToFile(User user) {
+	public static void writeToFile(LinkedList<User> userList) {
 
 		String fileName = "bankaccount.txt";
 		Path path = Paths.get("src/resources", fileName);
@@ -135,8 +168,10 @@ public class BankApp {
 		PrintWriter output = null;
 		try {
 			// Set to true to append to end of file, set to false to overwrite
-			output = new PrintWriter(new FileOutputStream(file, true));
-			output.println(user);
+			output = new PrintWriter(new FileOutputStream(file, false));
+			for (User user : userList) {
+				output.println(user);				
+			}
 			output.close();
 		} catch (FileNotFoundException e) {
 			System.out.println("Hey, contact customer service!");

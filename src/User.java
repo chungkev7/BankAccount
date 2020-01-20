@@ -19,6 +19,15 @@ public class User {
 		this.savingsAccount = savingsAccount;
 	}
 
+	public User(int id, String name, String securityCode, double checkingsAccount, double savingsAccount) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.securityCode = securityCode;
+		this.checkingsAccount = checkingsAccount;
+		this.savingsAccount = savingsAccount;
+	}
+
 	public int getId() {
 		return id;
 	}
